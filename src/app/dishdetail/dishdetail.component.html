@@ -36,15 +36,49 @@
   <div fxFlex="40" *ngIf="dish">
     <md-list>
       <h3>Comments</h3>
-
-    <md-list *ngFor="let comment of dish.comments">
-      <p>{{comment.comment}} <br>
-        {{comment.rating}} stars <br>
-        -- {{comment.author}}  {{comment.date | date}}
-      </p>
-
+      <md-list *ngFor="let comment of dish.comments">
+        <p>{{comment.comment}} <br>
+          {{comment.rating}} stars <br>
+          -- {{comment.author}}  {{comment.date | date}}
+        </p>
+      </md-list>
     </md-list>
-</md-list>
+      <div *ngIf="feedbackForm.valid">
+        <p> {{ this.feedbackForm.value.comment }}<br>
+          {{ this.feedbackForm.value.rating }} Stars<br>
+          -- {{ this.feedbackForm.value.author }}</p>
+      </div>
+
+    <form novalidate [formGroup]="feedbackForm" (ngSubmit)="onSubmit()">
+       <p>
+         <md-input-container class="full-width"
+          dividerColor="{{(formErrors.author) ? 'warn' : 'primary'}}">
+           <input mdInput formControlName="author" placeholder="Name" type="text" required>
+           <md-hint>
+             <span [hidden]="!(formErrors.author)">
+               {{formErrors.author}}</span>
+           </md-hint>
+         </md-input-container>
+
+         <table class="form-size">
+           <td class="full-width">
+             <md-slider min="0" max="5" step="1" value="5" thumbLabel tickInterval="1" mdInput formControlName="rating"></md-slider>
+           </td>
+         </table>
+
+         <p>
+           <md-input-container class="full-width"
+           dividerColor="{{(formErrors.comment) ? 'warn' : 'primary'}}">
+             <textarea mdInput formControlName="comment" placeholder="Your comment" rows=5 required></textarea>
+             <md-hint>
+               <span [hidden]="!(formErrors.comment)">
+                 {{formErrors.comment}}</span>
+             </md-hint>
+           </md-input-container>
+         </p>
+         <button type="submit" md-button class="background-primary text-floral-white" [disabled]="feedbackForm.invalid">Submit</button>
+    </form>
+
   </div>
   <div [hidden]="dish">
     <md-spinner></md-spinner><h4>Loading . . . Please Wait</h4>

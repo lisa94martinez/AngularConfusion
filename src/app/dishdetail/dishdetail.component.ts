@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Params, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Comment } from '../shared/comment';
 
 import { Dish } from '../shared/dish';
 import { DishService } from '../services/dish.service';
@@ -18,10 +20,29 @@ export class DishdetailComponent implements OnInit {
   dishIds: number[];
   prev: number;
   next: number;
+  feedbackForm: FormGroup;
+  comment: Comment;
+  formErrors = {
+    'author': '',
+    'comment': ''
+  };
+
+  validationMessages = {
+    'author': {
+      'required':      'Author name is required.',
+      'minlength':     'Author name must be at least 2 characters long.',
+      'maxlength':     'Author name cannot be more than 25 characters long.'
+    },
+    'comment': {
+      'required':      'Comment is required.'
+    },
+  };
 
   constructor(private dishservice: DishService,
     private route: ActivatedRoute,
-    private location: Location) { }
+    private location: Location,
+    private fb: FormBuilder) {
+    this.createForm(); }
 
     ngOnInit() {
       this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds);
@@ -38,6 +59,46 @@ export class DishdetailComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  createForm() {
+    this.feedbackForm = this.fb.group({
+      author: ['', [Validators.required, Validators.minLength(2)] ],
+      comment: ['', Validators.required],
+      rating: 5
+    });
+
+    this.feedbackForm.valueChanges
+     .subscribe(data => this.onValueChanged(data));
+
+   this.onValueChanged(); // (re)set validation messages now
+  }
+
+  onValueChanged(data?: any) {
+    if (!this.feedbackForm) { return; }
+    const form = this.feedbackForm;
+    for (const field in this.formErrors) {
+      // clear previous error message (if any)
+      this.formErrors[field] = '';
+      const control = form.get(field);
+      if (control && control.dirty && !control.valid) {
+        const messages = this.validationMessages[field];
+        for (const key in control.errors) {
+          this.formErrors[field] += messages[key] + ' ';
+        }
+      }
+    }
+  }
+
+  onSubmit() {
+    this.comment = this.feedbackForm.value;
+    this.comment.date = new Date().toISOString();
+    this.dish.comments.push(this.comment);
+    this.feedbackForm.reset({
+      author: '',
+      comment: '',
+      rating: 5
+    });
   }
 
 }
