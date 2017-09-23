@@ -14,14 +14,14 @@ export class PromotionService {
 
 
     getPromotions(): Observable<Promotion[]> {
-      return Observable.of(PROMOTIONS).delay(2000);
+      return Observable.of(PROMOTIONS);
     }
 
     getPromotion(id: number): Observable<Promotion> {
-      return Observable.of(PROMOTIONS.filter((promo) => (promo.id === id))[0]).delay(2000);
+      return Observable.of(PROMOTIONS.filter((promo) => (promo.id === id))[0]);
     }
 
     getFeaturedPromotion(): Observable<Promotion> {
-      return Observable.of(PROMOTIONS.filter((promo) => promo.featured)[0]).delay(2000);
+      return Observable.of(PROMOTIONS.filter((promo) => promo.featured)[0]);
     }
 }
