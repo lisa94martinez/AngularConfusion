@@ -38,9 +38,8 @@
 
       <div fxFlex fxFlexOffset="20px" class="form-size">
        <h3>Send us your Feedback</h3>
-       <p>{{ feedbackForm.value | json }} {{ feedbackForm.status | json }}</p>
 
-       <form novalidate [formGroup]="feedbackForm" (ngSubmit)="onSubmit()">
+       <form novalidate [formGroup]="feedbackForm" (ngSubmit)="onSubmit()" [style.display]="hideForm?'none':'inherit'">
           <p>
             <md-input-container class="half-width"
              dividerColor="{{(formErrors.firstname) ? 'warn' : 'primary'}}">
@@ -96,6 +95,28 @@
           </p>
           <button type="submit" md-button class="background-primary text-floral-white" [disabled]="feedbackForm.invalid">Submit</button>
         </form>
+
+        <div *ngIf="feedbackErrMess">
+          <h2>Error</h2>
+          <h4>{{feedbackErrMess}}</h4>
+        </div>
+        
+        <div [hidden]="hideSpin || feedbackErrMess">
+          <md-spinner></md-spinner><h4>Loading . . . Please Wait</h4>
+        </div>
+
+        <div [@expand] [style.display]="hideForm?'inherit':'none'">
+          <h3>Your Submission</h3>
+          <p> First Name: {{ feedbackCopy.firstname }}<br>
+            Last Name: {{ feedbackCopy.lastname }} <br>
+            Tel. Number: {{ feedbackCopy.telnum }} <br>
+            Email: {{ feedbackCopy.email }} <br>
+            Contact You?: {{ feedbackCopy.agree }} <br>
+            How?: {{ feedbackCopy.contacttype }} <br>
+            Feedback: {{ feedbackCopy.message }}
+            </p>
+        </div>
+
      </div>
 
 </div>

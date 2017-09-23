@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
+import { FeedbackService } from '../services/feedback.service';
 import { flyInOut,expand } from '../animations/app.animation';
 
 @Component({
@@ -20,6 +21,11 @@ export class ContactComponent implements OnInit {
 
   feedbackForm: FormGroup;
   feedback: Feedback;
+  feedbackCopy: Feedback;
+  feedbackErrMess: string;
+  hideForm: boolean;
+  hideSpin: boolean;
+
   contactType = ContactType;
   formErrors = {
     'firstname': '',
@@ -49,12 +55,13 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+      private feedbackService: FeedbackService) {
     this.createForm();
+    this.feedbackCopy = new Feedback;
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() { this.hideSpin = true }
 
   createForm() {
     this.feedbackForm = this.fb.group({
@@ -70,7 +77,7 @@ export class ContactComponent implements OnInit {
     this.feedbackForm.valueChanges
      .subscribe(data => this.onValueChanged(data));
 
-   this.onValueChanged(); // (re)set validation messages now
+    this.onValueChanged(); // (re)set validation messages now
   }
 
   onValueChanged(data?: any) {
@@ -91,7 +98,18 @@ export class ContactComponent implements OnInit {
 
   onSubmit() {
     this.feedback = this.feedbackForm.value;
-    console.log(this.feedback);
+    //hide form and show spinner
+    this.hideForm = true;
+    this.hideSpin = false;
+    this.feedbackService.submitFeedback(this.feedback)
+      .subscribe(feedbackCopy => {
+        this.hideSpin = true;
+        this.feedbackCopy = feedbackCopy;
+        // show response feedback for 5 seconds (then hide it)
+        setTimeout(function(){ this.hideForm = false; }.bind(this), 5000);
+      },
+      errmess => this.feedbackErrMess = <any>errmess);
+
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
